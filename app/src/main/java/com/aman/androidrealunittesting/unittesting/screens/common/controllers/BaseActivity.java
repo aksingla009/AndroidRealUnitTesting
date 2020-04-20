@@ -1,0 +1,22 @@
+package com.aman.androidrealunittesting.unittesting.screens.common.controllers;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.aman.androidrealunittesting.unittesting.common.CustomApplication;
+import com.aman.androidrealunittesting.unittesting.common.dependencyinjection.ControllerCompositionRoot;
+
+public class BaseActivity extends AppCompatActivity {
+
+    private ControllerCompositionRoot mControllerCompositionRoot;
+
+    protected ControllerCompositionRoot getCompositionRoot() {
+        if (mControllerCompositionRoot == null) {
+            mControllerCompositionRoot = new ControllerCompositionRoot(
+                    ((CustomApplication) getApplication()).getCompositionRoot(),
+                    this
+            );
+        }
+        return mControllerCompositionRoot;
+    }
+
+}
