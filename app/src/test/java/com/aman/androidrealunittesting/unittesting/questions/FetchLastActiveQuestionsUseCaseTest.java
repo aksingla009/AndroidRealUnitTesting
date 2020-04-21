@@ -1,8 +1,8 @@
 package com.aman.androidrealunittesting.unittesting.questions;
 
-import com.aman.androidrealunittesting.unittesting.networking.StackoverflowApi;
 import com.aman.androidrealunittesting.unittesting.networking.questions.FetchLastActiveQuestionsEndpoint;
 import com.aman.androidrealunittesting.unittesting.networking.questions.QuestionSchema;
+import com.aman.androidrealunittesting.unittesting.testdata.QuestionsTestData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,20 +15,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentCaptor.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FetchLastActiveQuestionsUseCaseTest {
     //region Constants----------------------------------------------------
-
+    private static final List<Question> QUESTIONS = QuestionsTestData.getQuestions();
     //endregion Constants-------------------------------------------------
 
     //region Helper Fields------------------------------------------------
-    FetchLastActiveQuestionsEndpointTD fetchLastActiveQuestionsEndpointTD;
+    private FetchLastActiveQuestionsEndpointTD fetchLastActiveQuestionsEndpointTD;
     @Mock
     FetchLastActiveQuestionsUseCase.Listener mListener1;
     @Mock
@@ -49,7 +47,7 @@ public class FetchLastActiveQuestionsUseCaseTest {
 
     //If Successful endpoint response then need to notify all the Listeners about the success with correct data
     @Test
-    public void fetchLastActiveQuestionsAndNotify_success_listenersNotifiedWithSuccessWithCorrectData () throws Exception {
+    public void fetchLastActiveQuestionsAndNotify_success_listenersNotifiedWithSuccessWithCorrectData(){
         //Arrange
         success();
         SUT.registerListener(mListener1);
@@ -65,14 +63,14 @@ public class FetchLastActiveQuestionsUseCaseTest {
         //on second index we should have List of Questions from Listener2
 
         //We will compare that every list of Questions which listener got in there should be actually Equal to what was passed
-        assertThat(listOfListOFQuestions.get(0),is(getFetchedQuestions()));//For Listener1
-        assertThat(listOfListOFQuestions.get(1),is(getFetchedQuestions()));//For Listener2
+        assertThat(listOfListOFQuestions.get(0), is(QUESTIONS));//For Listener1
+        assertThat(listOfListOFQuestions.get(1), is(QUESTIONS));//For Listener2
     }
 
     //If Failed endpoint response then need to notify all the Listeners about the failure
 
     @Test
-    public void fetchLastActiveQuestionsAndNotify_failure_listenersNotifiedWithFailure() throws Exception {
+    public void fetchLastActiveQuestionsAndNotify_failure_listenersNotifiedWithFailure() {
         //Arrange
         failure();
         SUT.registerListener(mListener1);
@@ -94,33 +92,25 @@ public class FetchLastActiveQuestionsUseCaseTest {
         fetchLastActiveQuestionsEndpointTD.mFailure = true;
     }
 
-    private List<Question> getFetchedQuestions() {
-        List<Question> questionList = new ArrayList<>();
-        questionList.add(new Question("id1","title1"));
-        questionList.add(new Question("id2","title2"));
-        return questionList;
-
-    }
-
     //endregion Helper Methods----------------------------------------------
 
     //region Helper Classes-------------------------------------------------
-    private static class FetchLastActiveQuestionsEndpointTD extends FetchLastActiveQuestionsEndpoint{
-        public boolean mFailure;
+    private static class FetchLastActiveQuestionsEndpointTD extends FetchLastActiveQuestionsEndpoint {
+        boolean mFailure;
 
-        public FetchLastActiveQuestionsEndpointTD() {
+        FetchLastActiveQuestionsEndpointTD() {
             super(null);
         }
 
         @Override
         public void fetchLastActiveQuestions(Listener listener) {
-            if(mFailure){
+            if (mFailure) {
                 listener.onQuestionsFetchFailed();
-            }else{
+            } else {
                 //Return Some Fake data for test assuming that its a success
                 List<QuestionSchema> questionSchemasList = new ArrayList<>();
-                questionSchemasList.add(new QuestionSchema("title1","id1","body1"));
-                questionSchemasList.add(new QuestionSchema("title2","id2","body2"));
+                questionSchemasList.add(new QuestionSchema("title1", "id1", "body1"));
+                questionSchemasList.add(new QuestionSchema("title2", "id2", "body2"));
                 listener.onQuestionsFetched(questionSchemasList);
             }
         }
